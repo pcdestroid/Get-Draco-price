@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+   <head>
+       <meta charset="utf-8"/>
+       <title>Cotacao Crypto</title>
+
+<style>
+body {background-color: white;}
+p    {font-size: 120%; font-weight: bold;}
+p2   {font-size: 120%;font-weight: bold;}
+button {
+position: relative;
+top: -4px;
+left: 10px;
+color: white;
+padding: 10px 10px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 12px;
+}
+</style>
+</head>
+<body></body>
+<script>
+var preco;
+var valor;
+
+var HttpClient = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        }
+
+        anHttpRequest.open( "POST", aUrl, true );            
+        anHttpRequest.send( null );
+    }
+}
+var HttpClient2 = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        }
+
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.send( null );
+    }
+}
+
+var client = new HttpClient();
+var client2 = new HttpClient2();
+
+let paragrafo = document.createElement("p");
+paragrafo.setAttribute("id", 'dracoVlr');
+
+let total = document.createElement("p");
+total.setAttribute("id", 'dracodolares');
+
+let totalr = document.createElement("p");
+totalr.setAttribute("id", 'dracoreais');
+
+let inputvlr = document.createElement("input");
+inputvlr.setAttribute("id", 'dracoInput');
+inputvlr.setAttribute("type", "number")
+inputvlr.setAttribute("value", localStorage.getItem('dracoVlr1'))
+let texto = document.createTextNode("Preço da Draco" + ' - ' + parseFloat(preco).toFixed(2));
+paragrafo.appendChild(texto);
+let body = document.body;
+
+body.appendChild(paragrafo);
+body.appendChild(inputvlr);
+body.appendChild(total);
+body.appendChild(totalr);
+
+function display() {
+
+client.get('https://api.mir4global.com/wallet/prices/draco/daily', function(response) {
+var retorno = JSON.parse(response);
+preco = retorno.Data[retorno.Data.length - 1].USDDracoRate
+var input = document.querySelector('input');
+valor = input.value;
+localStorage.setItem('dracoVlr1', input.value);
+document.title = 'Draco' + ' - $' + parseFloat(preco).toFixed(2);
+document.getElementById('dracoVlr').innerHTML = "Preço do Draco" + ' - $' + parseFloat(preco).toFixed(2);
+//document.getElementById('dracototal').innerHTML = 'Total em dólares: $' + valor * parseFloat(preco).toFixed(2)
+});
+
+client2.get('https://api.binance.com/api/v3/ticker/price?symbol=BUSDBRL', function(response) {
+	
+	var binance = JSON.parse(response);
+    console.log(binance.price)
+    document.getElementById('dracodolares').innerHTML = 'Total em Dólares: $' + (valor * preco).toFixed(2)
+    document.getElementById('dracoreais').innerHTML = 'Total em Reais: R$' + ((valor * preco)*binance.price).toFixed(2)
+});
+
+}
+const createClock = setInterval(display, 2000);
+</script>
+</html>
+
